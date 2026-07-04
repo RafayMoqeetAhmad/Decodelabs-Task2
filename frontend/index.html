@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DecodeLabs – Full Stack App | Project 1 + Project 2" />
+  <title>DecodeLabs | Full Stack App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" id="top">
+    <nav class="nav-container" aria-label="Primary navigation">
+      <a href="#top" class="nav-logo">
+        <span class="logo-icon">&#9670;</span>
+        <span class="logo-text">DecodeLabs</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu" role="list">
+        <li><a href="#hero"      class="nav-link">Home</a></li>
+        <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
+        <li><a href="#users"     class="nav-link">Users</a></li>
+        <li><a href="#add-user"  class="nav-link">Add User</a></li>
+        <li><a href="#api-docs"  class="nav-link nav-cta">API Docs</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <p class="hero-badge">Batch 2026 &middot; Full Stack App</p>
+        <h1 class="hero-heading">Project 1 <span class="plus">+</span> Project 2</h1>
+        <p class="hero-sub">Frontend meets Backend. HTML/CSS/JS interface connected live to a Node.js/Express REST API. This is full stack development.</p>
+        <div class="hero-actions">
+          <a href="#users"     class="btn btn-primary">View Users</a>
+          <a href="#api-docs"  class="btn btn-outline">API Docs</a>
+        </div>
+        <div class="api-status-bar" id="apiStatusBar">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Checking API...</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="stack-diagram">
+          <div class="layer frontend-layer">
+            <span class="layer-label">Frontend</span>
+            <span class="layer-tech">HTML · CSS · JS</span>
+          </div>
+          <div class="layer-arrow">&#8597; JSON</div>
+          <div class="layer backend-layer">
+            <span class="layer-label">Backend</span>
+            <span class="layer-tech">Node.js · Express</span>
+          </div>
+          <div class="layer-arrow">&#8597; REST</div>
+          <div class="layer db-layer">
+            <span class="layer-label">Data Store</span>
+            <span class="layer-tech">In-Memory Array</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="section" id="dashboard">
+      <div class="container">
+        <h2 class="section-title">Dashboard</h2>
+        <p class="section-sub">Live stats from the backend API.</p>
+        <div class="stats-grid">
+          <article class="stat-card" aria-label="Total Users">
+            <div class="stat-icon">&#128100;</div>
+            <div class="stat-num" id="statTotal">—</div>
+            <div class="stat-label">Total Users</div>
+          </article>
+          <article class="stat-card" aria-label="Interns">
+            <div class="stat-icon">&#127891;</div>
+            <div class="stat-num" id="statInterns">—</div>
+            <div class="stat-label">Interns</div>
+          </article>
+          <article class="stat-card" aria-label="Mentors">
+            <div class="stat-icon">&#127775;</div>
+            <div class="stat-num" id="statMentors">—</div>
+            <div class="stat-label">Mentors</div>
+          </article>
+          <article class="stat-card" aria-label="Admins">
+            <div class="stat-icon">&#128737;</div>
+            <div class="stat-num" id="statAdmins">—</div>
+            <div class="stat-label">Admins</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== USERS TABLE ===== -->
+    <section class="section alt-section" id="users">
+      <div class="container">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Users</h2>
+            <p class="section-sub">Live data from <code>GET /api/users</code></p>
+          </div>
+          <button class="btn btn-primary" id="refreshBtn" onclick="loadUsers()">&#8635; Refresh</button>
+        </div>
+
+        <!-- Search + Filter -->
+        <div class="controls-row">
+          <input type="search" id="searchInput" class="input-field" placeholder="Search name or email..." aria-label="Search users" />
+          <select id="roleFilter" class="input-field select-field" aria-label="Filter by role">
+            <option value="">All Roles</option>
+            <option value="intern">Intern</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+        <!-- Table -->
+        <div class="table-wrapper" role="region" aria-label="Users table" tabindex="0">
+          <table class="users-table" aria-label="Users list">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Created</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="6" class="table-loading">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ADD / EDIT USER FORM ===== -->
+    <section class="section" id="add-user">
+      <div class="container">
+        <h2 class="section-title" id="formHeading">Add New User</h2>
+        <p class="section-sub">Sends a <code>POST /api/users</code> request to the backend.</p>
+
+        <div class="form-card">
+          <div class="form-group">
+            <label for="inputName" class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" id="inputName" class="input-field" placeholder="e.g. Rafay Ahmad" aria-required="true" />
+            <span class="field-error" id="errName"></span>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail" class="form-label">Email Address <span class="required">*</span></label>
+            <input type="email" id="inputEmail" class="input-field" placeholder="e.g. rafay@decodelabs.tech" aria-required="true" />
+            <span class="field-error" id="errEmail"></span>
+          </div>
+          <div class="form-group">
+            <label for="inputRole" class="form-label">Role</label>
+            <select id="inputRole" class="input-field select-field">
+              <option value="intern">Intern</option>
+              <option value="mentor">Mentor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <input type="hidden" id="editUserId" value="" />
+          <div class="form-actions">
+            <button class="btn btn-primary" id="submitBtn" onclick="submitUser()">Add User</button>
+            <button class="btn btn-outline" id="cancelBtn" onclick="cancelEdit()" style="display:none">Cancel</button>
+          </div>
+          <div id="formResult" class="form-result" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== API DOCS ===== -->
+    <section class="section alt-section" id="api-docs">
+      <div class="container">
+        <h2 class="section-title">API Documentation</h2>
+        <p class="section-sub">All endpoints exposed by the backend — <code>http://localhost:3000</code></p>
+
+        <div class="endpoints-grid">
+
+          <article class="endpoint-card get">
+            <div class="ep-method">GET</div>
+            <div class="ep-path">/api/status</div>
+            <p class="ep-desc">Health check. Returns server status, timestamp, and all available endpoints.</p>
+            <div class="ep-response">
+<pre>{
+  "success": true,
+  "data": {
+    "status": "online",
+    "totalUsers": 4
+  }
+}</pre>
+            </div>
+          </article>
+
+          <article class="endpoint-card get">
+            <div class="ep-method">GET</div>
+            <div class="ep-path">/api/users</div>
+            <p class="ep-desc">Returns all users. Optional query params: <code>?role=intern</code>, <code>?search=rafay</code></p>
+            <div class="ep-response">
+<pre>{
+  "success": true,
+  "data": {
+    "count": 4,
+    "users": [...]
+  }
+}</pre>
+            </div>
+          </article>
+
+          <article class="endpoint-card get">
+            <div class="ep-method">GET</div>
+            <div class="ep-path">/api/users/:id</div>
+            <p class="ep-desc">Returns a single user by ID. Returns 404 if not found.</p>
+            <div class="ep-response">
+<pre>{
+  "success": true,
+  "data": {
+    "user": { "id": 1, ... }
+  }
+}</pre>
+            </div>
+          </article>
+
+          <article class="endpoint-card post">
+            <div class="ep-method">POST</div>
+            <div class="ep-path">/api/users</div>
+            <p class="ep-desc">Creates a new user. Validates name, email format, and role. Returns 201 on success.</p>
+            <div class="ep-response">
+<pre>Body: {
+  "name": "Ali Khan",
+  "email": "ali@test.com",
+  "role": "intern"
+}</pre>
+            </div>
+          </article>
+
+          <article class="endpoint-card put">
+            <div class="ep-method">PUT</div>
+            <div class="ep-path">/api/users/:id</div>
+            <p class="ep-desc">Updates an existing user. Partial updates supported. Returns 404 if not found.</p>
+            <div class="ep-response">
+<pre>Body: {
+  "name": "Updated Name",
+  "role": "mentor"
+}</pre>
+            </div>
+          </article>
+
+          <article class="endpoint-card delete">
+            <div class="ep-method">DELETE</div>
+            <div class="ep-path">/api/users/:id</div>
+            <p class="ep-desc">Permanently deletes a user by ID. Returns the deleted user object.</p>
+            <div class="ep-response">
+<pre>{
+  "success": true,
+  "data": {
+    "deleted": { "id": 2, ... }
+  }
+}</pre>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Status Codes -->
+        <h3 class="sub-heading">HTTP Status Codes</h3>
+        <div class="codes-grid">
+          <div class="code-item success-code"><span class="code-num">200</span><span>OK</span></div>
+          <div class="code-item success-code"><span class="code-num">201</span><span>Created</span></div>
+          <div class="code-item error-code"><span class="code-num">400</span><span>Bad Request</span></div>
+          <div class="code-item error-code"><span class="code-num">404</span><span>Not Found</span></div>
+          <div class="code-item error-code"><span class="code-num">409</span><span>Conflict</span></div>
+          <div class="code-item error-code"><span class="code-num">500</span><span>Server Error</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#top" class="nav-logo"><span class="logo-icon">&#9670;</span><span class="logo-text">DecodeLabs</span></a>
+          <p>Full Stack Development · Batch 2026</p>
+          <p class="footer-tagline">Project 1 (Frontend) + Project 2 (Backend)</p>
+        </div>
+        <nav aria-label="Footer nav">
+          <h4>Stack</h4>
+          <ul role="list">
+            <li>HTML5 · CSS3 · JavaScript</li>
+            <li>Node.js · Express.js</li>
+            <li>RESTful API · JSON</li>
+            <li>CORS · Validation</li>
+          </ul>
+        </nav>
+        <address class="footer-contact">
+          <h4>Contact</h4>
+          <p><a href="mailto:decodelabs.tech@gmail.com">decodelabs.tech@gmail.com</a></p>
+          <p><a href="https://www.decodelabs.tech" target="_blank" rel="noopener">www.decodelabs.tech</a></p>
+          <p>Greater Lucknow, India</p>
+        </address>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 DecodeLabs. Built with pure HTML, CSS, JS &amp; Node.js.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
